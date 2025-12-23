@@ -12,8 +12,9 @@ export interface ParsedDependency {
 }
 
 // Package name: letters, numbers, dots, underscores, hyphens
-// Version specifier: everything after the package name
-const DEPENDENCY_REGEX = /^([a-zA-Z0-9._-]+)\s*(.*)$/;
+// Extras: optional [extra1,extra2] after package name
+// Version specifier: everything after the package name and extras
+const DEPENDENCY_REGEX = /^([a-zA-Z0-9._-]+)(?:\[[^\]]*\])?\s*(.*)$/;
 
 /**
  * Check if a line should be skipped (empty, comment, special directive)

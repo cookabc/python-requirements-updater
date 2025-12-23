@@ -31,9 +31,10 @@ export class PyDepsInlayHintProvider implements vscode.InlayHintsProvider {
             }
             
             try {
+                // 获取最新版本（无约束），让用户知道有没有更新
                 const versionInfo = await getLatestCompatible(
                     dep.packageName,
-                    dep.versionSpecifier,
+                    '', // 不传约束，获取最新版本
                     config.showPrerelease,
                     config.cacheTTLMinutes
                 );
@@ -46,7 +47,7 @@ export class PyDepsInlayHintProvider implements vscode.InlayHintsProvider {
                 // Format hint text
                 let hintText: string;
                 if (versionInfo.error === 'no-compatible-version') {
-                    hintText = '⟶ no compatible version';
+                    hintText = '⟶ no versions available';
                 } else {
                     hintText = `⟶ latest: ${versionInfo.latestCompatible}`;
                 }
