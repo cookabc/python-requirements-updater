@@ -1,0 +1,71 @@
+{
+  "name": "py-deps-hint",
+  "displayName": "Python Dependencies Hint",
+  "description": "Display latest compatible versions for Python dependencies in requirements.txt",
+  "version": "0.0.1",
+  "publisher": "py-deps-hint",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:pip-requirements"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Python Dependencies Hint",
+      "properties": {
+        "pyDepsHint.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable the extension"
+        },
+        "pyDepsHint.showPrerelease": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include pre-release versions in version hints"
+        },
+        "pyDepsHint.cacheTTLMinutes": {
+          "type": "number",
+          "default": 60,
+          "description": "Cache TTL in minutes for PyPI version data"
+        }
+      }
+    },
+    "languages": [
+      {
+        "id": "pip-requirements",
+        "aliases": ["pip requirements", "requirements.txt"],
+        "filenames": ["requirements.txt"],
+        "configuration": "./language-configuration.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "mocha --require ts-node/register 'src/test/**/*.test.ts'",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@types/chai": "^4.3.11",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "chai": "^4.3.10",
+    "eslint": "^8.54.0",
+    "fast-check": "^3.14.0",
+    "mocha": "^10.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.2"
+  },
+  "dependencies": {}
+}
