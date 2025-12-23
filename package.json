@@ -4,12 +4,24 @@
   "description": "Display latest compatible versions for Python dependencies in requirements.txt",
   "version": "0.0.1",
   "publisher": "py-deps-hint",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/py-deps-hint/py-deps-hint"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
     "Programming Languages",
     "Other"
+  ],
+  "keywords": [
+    "python",
+    "requirements",
+    "pip",
+    "dependencies",
+    "version"
   ],
   "activationEvents": [
     "onLanguage:pip-requirements"
