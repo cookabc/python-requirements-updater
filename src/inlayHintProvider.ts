@@ -58,6 +58,25 @@ export class PyDepsInlayHintProvider implements vscode.InlayHintsProvider {
                 const hint = new vscode.InlayHint(position, hintText, vscode.InlayHintKind.Parameter);
                 hint.paddingLeft = true;
                 
+                // Add tooltip and make it clickable
+                if (versionInfo.latestCompatible) {
+                    hint.tooltip = `Click to update ${dep.packageName} to ${versionInfo.latestCompatible}`;
+                    
+                    // Use a different approach - add command via CodeAction
+                    const command: vscode.Command = {
+                        title: 'Update to latest version',
+                        command: 'pyDepsHint.updateVersion',
+                        arguments: [document, dep.line, dep.packageName, versionInfo.latestCompatible]
+                    };
+                    
+                    // Try to set command if supported
+                    try {
+                        (hint as any).command = command;
+                    } catch {
+                        // Fallback: just show tooltip
+                    }
+                }
+                
                 return hint;
             } catch {
                 // Fail silently (Requirement 8.1)

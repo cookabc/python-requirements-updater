@@ -28,6 +28,16 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "commands": [
+      {
+        "command": "pyDepsHint.updateVersion",
+        "title": "Update Package Version"
+      },
+      {
+        "command": "pyDepsHint.updateAllVersions",
+        "title": "Update All Packages to Latest Versions"
+      }
+    ],
     "configuration": {
       "title": "Python Dependencies Hint",
       "properties": {
