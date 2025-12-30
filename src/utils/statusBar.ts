@@ -3,7 +3,7 @@
  */
 
 import * as vscode from 'vscode';
-import { t } from './i18n';
+import { t } from '../utils/i18n';
 
 export class StatusBarManager {
     private statusBarItem: vscode.StatusBarItem;

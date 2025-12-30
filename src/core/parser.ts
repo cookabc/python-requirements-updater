@@ -3,13 +3,7 @@
  * Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7
  */
 
-export interface ParsedDependency {
-    packageName: string;
-    versionSpecifier: string;
-    line: number;
-    startColumn: number;
-    endColumn: number;
-}
+import type { ParsedDependency } from '../types';
 
 // Package name: letters, numbers, dots, underscores, hyphens
 // Extras: optional [extra1,extra2] after package name

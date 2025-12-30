@@ -3,16 +3,7 @@
  * Validates: Requirements 6.1, 6.2, 6.3, 6.4, 6.5
  */
 
-export interface PackageVersions {
-    packageName: string;
-    versions: string[];
-    fetchedAt: number;
-}
-
-export interface CacheEntry<T> {
-    data: T;
-    timestamp: number;
-}
+import type { PackageVersions, CacheEntry } from '../types';
 
 export class CacheManager {
     private cache: Map<string, CacheEntry<PackageVersions>> = new Map();

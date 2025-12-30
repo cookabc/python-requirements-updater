@@ -3,15 +3,10 @@
  * Validates: Requirements 4.1, 4.2, 6.2, 6.3
  */
 
-import { cacheManager } from './cache';
+import { cacheManager } from '../core/cache';
 import { fetchVersions } from './pypiClient';
-import { resolve } from './versionResolver';
-
-export interface VersionInfo {
-    packageName: string;
-    latestCompatible: string | null;
-    error?: 'not-found' | 'no-compatible-version' | 'fetch-error';
-}
+import { resolve } from '../core/versionResolver';
+import type { VersionInfo } from '../types';
 
 /**
  * Get the latest compatible version for a package

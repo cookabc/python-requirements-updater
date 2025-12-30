@@ -3,16 +3,7 @@
  * Validates: Requirements 4.1, 4.2, 4.3, 4.4, 4.5, 4.6
  */
 
-export interface VersionConstraint {
-    operator: '==' | '!=' | '>=' | '<=' | '>' | '<' | '~=';
-    version: string;
-}
-
-export interface ResolveResult {
-    found: boolean;
-    version?: string;
-    reason?: 'no-compatible-version';
-}
+import type { VersionConstraint, ResolveResult } from '../types';
 
 // Pre-release identifiers
 const PRERELEASE_PATTERNS = ['a', 'alpha', 'b', 'beta', 'rc', 'dev', 'pre', 'post'];

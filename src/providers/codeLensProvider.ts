@@ -4,11 +4,11 @@
  */
 
 import * as vscode from 'vscode';
-import { parseDocument } from './parser';
+import { parseDocument } from '../core/parser';
 import { getLatestCompatible } from './versionService';
-import { getConfig } from './configuration';
-import { analyzeVersionUpdate } from './versionAnalyzer';
-import { t } from './i18n';
+import { getConfig } from '../utils/configuration';
+import { analyzeVersionUpdate } from '../core/versionAnalyzer';
+import { t } from '../utils/i18n';
 
 export class PyDepsCodeLensProvider implements vscode.CodeLensProvider {
     private _onDidChangeCodeLenses: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();

@@ -4,12 +4,7 @@
  */
 
 import * as vscode from 'vscode';
-
-export interface ExtensionConfig {
-    enabled: boolean;
-    showPrerelease: boolean;
-    cacheTTLMinutes: number;
-}
+import type { ExtensionConfig } from '../types';
 
 const CONFIG_SECTION = 'pyDepsHint';
 

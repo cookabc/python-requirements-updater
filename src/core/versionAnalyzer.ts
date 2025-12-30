@@ -2,13 +2,7 @@
  * Version Analysis utilities
  */
 
-export interface VersionAnalysis {
-    currentVersion: string;
-    latestVersion: string;
-    updateType: 'patch' | 'minor' | 'major';
-    isBreakingChange: boolean;
-    riskLevel: 'low' | 'medium' | 'high';
-}
+import type { VersionAnalysis } from '../types';
 
 /**
  * Analyze version difference and risk level

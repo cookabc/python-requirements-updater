@@ -4,14 +4,14 @@
  */
 
 import * as vscode from 'vscode';
-import { PyDepsCodeLensProvider } from './codeLensProvider';
-import { onConfigChange, getConfig } from './configuration';
-import { cacheManager } from './cache';
-import { parseDocument } from './parser';
-import { getLatestCompatible } from './versionService';
-import { analyzeVersionUpdate } from './versionAnalyzer';
-import { StatusBarManager } from './statusBar';
-import { t } from './i18n';
+import { PyDepsCodeLensProvider } from './providers/codeLensProvider';
+import { onConfigChange, getConfig } from './utils/configuration';
+import { cacheManager } from './core/cache';
+import { parseDocument } from './core/parser';
+import { getLatestCompatible } from './providers/versionService';
+import { analyzeVersionUpdate } from './core/versionAnalyzer';
+import { StatusBarManager } from './utils/statusBar';
+import { t } from './utils/i18n';
 
 // Debounce timer for file changes
 let debounceTimer: NodeJS.Timeout | undefined;

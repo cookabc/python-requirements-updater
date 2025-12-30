@@ -3,13 +3,7 @@
  * Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5
  */
 
-import { PackageVersions } from './cache';
-
-export interface PyPIClientResult {
-    success: boolean;
-    data?: PackageVersions;
-    error?: 'not-found' | 'network-error' | 'parse-error';
-}
+import type { PackageVersions, PyPIClientResult } from '../types';
 
 interface PyPIResponse {
     releases: Record<string, unknown[]>;
