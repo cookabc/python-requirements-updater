@@ -85,25 +85,40 @@ export function activate(context: vscode.ExtensionContext): void {
             const deps = parseDocument(document.getText());
             
             const edit = new vscode.WorkspaceEdit();
-            let updatedCount = 0;
+            let safeUpdates = 0;
+            let riskyUpdates: Array<{dep: any, currentVersion: string, newVersion: string, analysis: any}> = [];
             
+            // First pass: identify safe and risky updates
             for (const dep of deps) {
                 try {
                     const versionInfo = await getLatestCompatible(dep.packageName, '', false, 60);
                     if (versionInfo.latestCompatible) {
-                        const lineText = document.lineAt(dep.line).text;
-                        const versionRegex = /==[\d\w\.\-\+]+/;
-                        const match = lineText.match(versionRegex);
+                        const currentVersion = dep.versionSpecifier.replace(/^==/, '');
+                        const newVersion = versionInfo.latestCompatible;
                         
-                        if (match) {
-                            const range = new vscode.Range(
-                                dep.line,
-                                match.index!,
-                                dep.line,
-                                match.index! + match[0].length
-                            );
-                            edit.replace(document.uri, range, `==${versionInfo.latestCompatible}`);
-                            updatedCount++;
+                        if (currentVersion !== newVersion) {
+                            const analysis = analyzeVersionUpdate(currentVersion, newVersion);
+                            
+                            if (analysis.riskLevel === 'high') {
+                                // Risky update - collect for confirmation
+                                riskyUpdates.push({ dep, currentVersion, newVersion, analysis });
+                            } else {
+                                // Safe update - add to edit
+                                const lineText = document.lineAt(dep.line).text;
+                                const versionRegex = /==[\d\w\.\-\+]+/;
+                                const match = lineText.match(versionRegex);
+                                
+                                if (match) {
+                                    const range = new vscode.Range(
+                                        dep.line,
+                                        match.index!,
+                                        dep.line,
+                                        match.index! + match[0].length
+                                    );
+                                    edit.replace(document.uri, range, `==${newVersion}`);
+                                    safeUpdates++;
+                                }
+                            }
                         }
                     }
                 } catch {
@@ -111,9 +126,56 @@ export function activate(context: vscode.ExtensionContext): void {
                 }
             }
             
-            if (updatedCount > 0) {
+            // Handle risky updates with confirmation
+            let confirmedRiskyUpdates = 0;
+            if (riskyUpdates.length > 0) {
+                const riskyList = riskyUpdates.map(u => 
+                    `• ${u.dep.packageName}: ${u.currentVersion} → ${u.newVersion} (Major)`
+                ).join('\n');
+                
+                const choice = await vscode.window.showWarningMessage(
+                    `⚠️ Found ${riskyUpdates.length} major version update(s) that may include breaking changes:\n\n${riskyList}\n\nHow would you like to proceed?`,
+                    { modal: true },
+                    'Update Safe Only',
+                    'Update All (Including Risky)',
+                    'Cancel'
+                );
+                
+                if (choice === 'Cancel') {
+                    return;
+                } else if (choice === 'Update All (Including Risky)') {
+                    // Add risky updates to edit
+                    for (const update of riskyUpdates) {
+                        const lineText = document.lineAt(update.dep.line).text;
+                        const versionRegex = /==[\d\w\.\-\+]+/;
+                        const match = lineText.match(versionRegex);
+                        
+                        if (match) {
+                            const range = new vscode.Range(
+                                update.dep.line,
+                                match.index!,
+                                update.dep.line,
+                                match.index! + match[0].length
+                            );
+                            edit.replace(document.uri, range, `==${update.newVersion}`);
+                            confirmedRiskyUpdates++;
+                        }
+                    }
+                }
+                // If 'Update Safe Only', we don't add risky updates to edit
+            }
+            
+            const totalUpdates = safeUpdates + confirmedRiskyUpdates;
+            
+            if (totalUpdates > 0) {
                 await vscode.workspace.applyEdit(edit);
-                vscode.window.showInformationMessage(`${t('updated')} ${updatedCount} ${t('packages')}`);
+                
+                let message = `${t('updated')} ${totalUpdates} ${t('packages')}`;
+                if (riskyUpdates.length > 0 && confirmedRiskyUpdates === 0) {
+                    message += ` (${riskyUpdates.length} major updates skipped)`;
+                }
+                
+                vscode.window.showInformationMessage(message);
             } else {
                 vscode.window.showInformationMessage(t('noUpdates'));
             }
