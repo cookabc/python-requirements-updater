@@ -6,15 +6,15 @@ Smart version management for Python requirements.txt files with one-click update
 [![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/cookabc.python-requirements-updater)](https://marketplace.visualstudio.com/items?itemName=cookabc.python-requirements-updater)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## ✨ 功能特性
+## ✨ Features
 
-- 🔍 **智能版本检测** - 自动识别 `requirements.txt` 文件并显示版本信息
-- 🎯 **风险分析** - 区分安全更新（补丁/小版本）和风险更新（大版本）
-- 🖱️ **一键更新** - 点击版本提示即可更新到最新版本
-- ⚠️ **安全确认** - 大版本更新时显示确认对话框，防止破坏性变更
-- 📊 **状态栏显示** - 实时显示可更新包的数量
-- 🌍 **多语言支持** - 支持中文、英文、日文、韩文等多种语言
-- 💾 **智能缓存** - 减少网络请求，提升响应速度
+- 🔍 **Smart Version Detection** - Automatically detects `requirements.txt` files and displays version information
+- 🎯 **Risk Analysis** - Distinguishes between safe updates (patch/minor) and risky updates (major versions)
+- 🖱️ **One-Click Updates** - Click on version hints to update to the latest version instantly
+- ⚠️ **Safety Confirmation** - Shows confirmation dialogs for major version updates to prevent breaking changes
+- 📊 **Status Bar Display** - Real-time display of updatable package count
+- 🌍 **Multi-language Support** - Supports Chinese, English, Japanese, Korean, and more languages
+- 💾 **Smart Caching** - Reduces network requests and improves response speed
 
 ## 🚀 Installation
 
