@@ -5,9 +5,18 @@
   "version": "1.0.0",
   "publisher": "cookabc",
   "license": "MIT",
+  "icon": "icon.png",
+  "homepage": "https://github.com/cookabc/python-requirements-updater#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/cookabc/python-requirements-updater"
+  },
+  "bugs": {
+    "url": "https://github.com/cookabc/python-requirements-updater/issues"
+  },
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
   },
   "engines": {
     "vscode": "^1.85.0"
