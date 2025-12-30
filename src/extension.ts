@@ -40,8 +40,7 @@ export function activate(context: vscode.ExtensionContext): void {
                 const choice = await vscode.window.showWarningMessage(
                     `⚠️ Major version update detected!\n\n${packageName}: ${currentVersion} → ${newVersion}\n\nThis may include breaking changes. Continue?`,
                     { modal: true },
-                    'Update Anyway',
-                    'Cancel'
+                    'Update Anyway'
                 );
                 
                 if (choice !== 'Update Anyway') {
