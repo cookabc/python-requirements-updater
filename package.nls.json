@@ -1,0 +1,4 @@
+{
+  "command.updateVersion": "Update Package Version",
+  "command.updateAllVersions": "Update All Packages to Latest Versions"
+}

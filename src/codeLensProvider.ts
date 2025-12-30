@@ -1,12 +1,13 @@
 /**
  * CodeLens Provider for requirements.txt
- * Provides clickable "Update" links for each dependency
+ * Provides version information and clickable update links
  */
 
 import * as vscode from 'vscode';
 import { parseDocument } from './parser';
 import { getLatestCompatible } from './versionService';
 import { getConfig } from './configuration';
+import { t } from './i18n';
 
 export class PyDepsCodeLensProvider implements vscode.CodeLensProvider {
     private _onDidChangeCodeLenses: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
@@ -15,6 +16,7 @@ export class PyDepsCodeLensProvider implements vscode.CodeLensProvider {
     public refresh(): void {
         this._onDidChangeCodeLenses.fire();
     }
+
     async provideCodeLenses(
         document: vscode.TextDocument,
         token: vscode.CancellationToken
@@ -49,19 +51,26 @@ export class PyDepsCodeLensProvider implements vscode.CodeLensProvider {
                 
                 // Extract current version
                 const currentVersion = dep.versionSpecifier.replace(/^==/, '');
-                
-                // Only show update if versions differ
-                if (currentVersion === versionInfo.latestCompatible) {
-                    return null;
-                }
+                const latestVersion = versionInfo.latestCompatible;
                 
                 const range = new vscode.Range(dep.line, dep.endColumn, dep.line, dep.endColumn);
                 
-                const codeLens = new vscode.CodeLens(range, {
-                    title: `↗ Update to ${versionInfo.latestCompatible}`,
-                    command: 'pyDepsHint.updateVersion',
-                    arguments: [document, dep.line, dep.packageName, versionInfo.latestCompatible]
-                });
+                let codeLens: vscode.CodeLens;
+                
+                if (currentVersion === latestVersion) {
+                    // Up to date - show non-clickable status
+                    codeLens = new vscode.CodeLens(range, {
+                        title: `✓ ${t('upToDate')} (${t('latest')}: ${latestVersion})`,
+                        command: ''
+                    });
+                } else {
+                    // Update available - show clickable update
+                    codeLens = new vscode.CodeLens(range, {
+                        title: `↗ ${t('updateTo')} ${latestVersion}`,
+                        command: 'pyDepsHint.updateVersion',
+                        arguments: [document, dep.line, dep.packageName, latestVersion]
+                    });
+                }
                 
                 return codeLens;
             } catch {

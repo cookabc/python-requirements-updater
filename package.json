@@ -31,11 +31,11 @@
     "commands": [
       {
         "command": "pyDepsHint.updateVersion",
-        "title": "Update Package Version"
+        "title": "%command.updateVersion%"
       },
       {
         "command": "pyDepsHint.updateAllVersions",
-        "title": "Update All Packages to Latest Versions"
+        "title": "%command.updateAllVersions%"
       }
     ],
     "configuration": {

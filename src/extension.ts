@@ -4,12 +4,12 @@
  */
 
 import * as vscode from 'vscode';
-import { PyDepsInlayHintProvider } from './inlayHintProvider';
 import { PyDepsCodeLensProvider } from './codeLensProvider';
 import { onConfigChange } from './configuration';
 import { cacheManager } from './cache';
 import { parseDocument } from './parser';
 import { getLatestCompatible } from './versionService';
+import { t } from './i18n';
 
 // Debounce timer for file changes
 let debounceTimer: NodeJS.Timeout | undefined;
@@ -40,7 +40,7 @@ export function activate(context: vscode.ExtensionContext): void {
                 await vscode.workspace.applyEdit(edit);
                 
                 vscode.window.showInformationMessage(
-                    `Updated ${packageName} to version ${newVersion}`
+                    `${t('updated')} ${packageName} ${t('updateTo')} ${newVersion}`
                 );
             }
         }
@@ -52,7 +52,7 @@ export function activate(context: vscode.ExtensionContext): void {
         async () => {
             const editor = vscode.window.activeTextEditor;
             if (!editor || editor.document.languageId !== 'pip-requirements') {
-                vscode.window.showErrorMessage('Please open a requirements.txt file');
+                vscode.window.showErrorMessage(t('openRequirements'));
                 return;
             }
             
@@ -88,31 +88,21 @@ export function activate(context: vscode.ExtensionContext): void {
             
             if (updatedCount > 0) {
                 await vscode.workspace.applyEdit(edit);
-                vscode.window.showInformationMessage(`Updated ${updatedCount} packages to latest versions`);
+                vscode.window.showInformationMessage(`${t('updated')} ${updatedCount} ${t('packages')}`);
             } else {
-                vscode.window.showInformationMessage('No packages to update');
+                vscode.window.showInformationMessage(t('noUpdates'));
             }
         }
     );
     
     context.subscriptions.push(updateAllCommand);
     
-    // Register Inlay Hint Provider for requirements.txt files
+    // Register CodeLens Provider for version information and updates
     const selector: vscode.DocumentSelector = {
         language: 'pip-requirements',
         scheme: 'file'
     };
     
-    const provider = new PyDepsInlayHintProvider();
-    
-    const providerDisposable = vscode.languages.registerInlayHintsProvider(
-        selector,
-        provider
-    );
-    
-    context.subscriptions.push(providerDisposable);
-    
-    // Register CodeLens Provider for clickable update links
     const codeLensProvider = new PyDepsCodeLensProvider();
     const codeLensDisposable = vscode.languages.registerCodeLensProvider(
         selector,
