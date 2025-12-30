@@ -137,11 +137,11 @@ export function activate(context: vscode.ExtensionContext): void {
                     `⚠️ Found ${riskyUpdates.length} major version update(s) that may include breaking changes:\n\n${riskyList}\n\nHow would you like to proceed?`,
                     { modal: true },
                     'Update Safe Only',
-                    'Update All (Including Risky)',
-                    'Cancel'
+                    'Update All (Including Risky)'
                 );
                 
-                if (choice === 'Cancel') {
+                if (choice === undefined) {
+                    // User clicked Cancel (VS Code provides this automatically)
                     return;
                 } else if (choice === 'Update All (Including Risky)') {
                     // Add risky updates to edit
