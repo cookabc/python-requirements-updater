@@ -50,41 +50,41 @@ code --install-extension cookabc.python-requirements-updater
 | `pyDepsHint.showPrerelease` | `false` | Include pre-release versions |
 | `pyDepsHint.cacheTTLMinutes` | `60` | Cache TTL in minutes |
 
-## 🏗️ 项目结构
+## 🏗️ Project Structure
 
 ```
 src/
-├── core/           # 核心逻辑
-│   ├── cache.ts           # 缓存管理
-│   ├── parser.ts          # 依赖解析
-│   ├── versionAnalyzer.ts # 版本风险分析
-│   └── versionResolver.ts # 版本解析
-├── providers/      # 服务提供者
-│   ├── codeLensProvider.ts # CodeLens 提供者
-│   ├── pypiClient.ts      # PyPI API 客户端
-│   └── versionService.ts  # 版本服务
-├── utils/          # 工具函数
-│   ├── configuration.ts   # 配置管理
-│   ├── i18n.ts           # 国际化
-│   └── statusBar.ts      # 状态栏管理
-├── types/          # 类型定义
+├── core/           # Core business logic
+│   ├── cache.ts           # Cache management
+│   ├── parser.ts          # Dependency parsing
+│   ├── versionAnalyzer.ts # Version risk analysis
+│   └── versionResolver.ts # Version resolution
+├── providers/      # Service providers
+│   ├── codeLensProvider.ts # CodeLens provider
+│   ├── pypiClient.ts      # PyPI API client
+│   └── versionService.ts  # Version service
+├── utils/          # Utility functions
+│   ├── configuration.ts   # Configuration management
+│   ├── i18n.ts           # Internationalization
+│   └── statusBar.ts      # Status bar management
+├── types/          # Type definitions
 │   └── index.ts
-└── extension.ts    # 插件入口
+└── extension.ts    # Extension entry point
 ```
 
-## 🛠️ 开发
+## 🛠️ Development
 
 ```bash
-# 安装依赖
+# Install dependencies
 npm install
 
-# 编译
+# Compile
 npm run compile
 
-# 运行测试
+# Run tests
 npm test
 
-# 打包
+# Package extension
 npx vsce package
 ```
 

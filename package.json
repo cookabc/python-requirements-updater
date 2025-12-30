@@ -63,7 +63,7 @@
       },
       {
         "command": "pyDepsHint.showUpToDate",
-        "title": "Show Up-to-date Status"
+        "title": "Show Package Up-to-date Status"
       }
     ],
     "configuration": {

@@ -18,7 +18,7 @@ let debounceTimer: NodeJS.Timeout | undefined;
 const DEBOUNCE_DELAY = 300; // ms (Requirement 1.3)
 
 export function activate(context: vscode.ExtensionContext): void {
-    console.log('py-deps-hint is now active');
+    console.log('Python Requirements Updater is now active');
     
     // Initialize status bar
     const statusBar = new StatusBarManager();
