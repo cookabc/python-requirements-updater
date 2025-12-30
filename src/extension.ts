@@ -5,10 +5,12 @@
 
 import * as vscode from 'vscode';
 import { PyDepsCodeLensProvider } from './codeLensProvider';
-import { onConfigChange } from './configuration';
+import { onConfigChange, getConfig } from './configuration';
 import { cacheManager } from './cache';
 import { parseDocument } from './parser';
 import { getLatestCompatible } from './versionService';
+import { analyzeVersionUpdate } from './versionAnalyzer';
+import { StatusBarManager } from './statusBar';
 import { t } from './i18n';
 
 // Debounce timer for file changes
@@ -18,12 +20,36 @@ const DEBOUNCE_DELAY = 300; // ms (Requirement 1.3)
 export function activate(context: vscode.ExtensionContext): void {
     console.log('py-deps-hint is now active');
     
+    // Initialize status bar
+    const statusBar = new StatusBarManager();
+    context.subscriptions.push(statusBar);
+    
     // Register command for updating version
     const updateVersionCommand = vscode.commands.registerCommand(
         'pyDepsHint.updateVersion',
         async (document: vscode.TextDocument, line: number, packageName: string, newVersion: string) => {
-            const edit = new vscode.WorkspaceEdit();
             const lineText = document.lineAt(line).text;
+            const currentVersionMatch = lineText.match(/==([^\s]+)/);
+            const currentVersion = currentVersionMatch ? currentVersionMatch[1] : '';
+            
+            // Analyze update risk
+            const analysis = analyzeVersionUpdate(currentVersion, newVersion);
+            
+            // Show confirmation for major updates
+            if (analysis.riskLevel === 'high') {
+                const choice = await vscode.window.showWarningMessage(
+                    `⚠️ Major version update detected!\n\n${packageName}: ${currentVersion} → ${newVersion}\n\nThis may include breaking changes. Continue?`,
+                    { modal: true },
+                    'Update Anyway',
+                    'Cancel'
+                );
+                
+                if (choice !== 'Update Anyway') {
+                    return;
+                }
+            }
+            
+            const edit = new vscode.WorkspaceEdit();
             
             // Find the version part and replace it
             const versionRegex = /==[\d\w\.\-\+]+/;
@@ -126,9 +152,12 @@ export function activate(context: vscode.ExtensionContext): void {
                 clearTimeout(debounceTimer);
             }
             
-            debounceTimer = setTimeout(() => {
+            debounceTimer = setTimeout(async () => {
                 // Refresh CodeLens
                 codeLensProvider.refresh();
+                
+                // Update status bar
+                await updateStatusBar(event.document, statusBar);
             }, DEBOUNCE_DELAY);
         }
     });
@@ -152,4 +181,32 @@ export function deactivate(): void {
     
     // Clear cache
     cacheManager.clear();
+}
+
+// Helper function to update status bar
+async function updateStatusBar(document: vscode.TextDocument, statusBar: StatusBarManager) {
+    const config = getConfig();
+    if (!config.enabled) {
+        statusBar.hide();
+        return;
+    }
+    
+    const deps = parseDocument(document.getText());
+    let updatesAvailable = 0;
+    
+    for (const dep of deps) {
+        try {
+            const versionInfo = await getLatestCompatible(dep.packageName, '', false, config.cacheTTLMinutes);
+            if (versionInfo.latestCompatible) {
+                const currentVersion = dep.versionSpecifier.replace(/^==/, '');
+                if (currentVersion !== versionInfo.latestCompatible) {
+                    updatesAvailable++;
+                }
+            }
+        } catch {
+            // Skip failed packages
+        }
+    }
+    
+    statusBar.updateStatus(updatesAvailable, deps.length);
 }

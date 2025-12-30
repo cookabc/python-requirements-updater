@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 import { parseDocument } from './parser';
 import { getLatestCompatible } from './versionService';
 import { getConfig } from './configuration';
+import { analyzeVersionUpdate } from './versionAnalyzer';
 import { t } from './i18n';
 
 export class PyDepsCodeLensProvider implements vscode.CodeLensProvider {
@@ -66,12 +67,26 @@ export class PyDepsCodeLensProvider implements vscode.CodeLensProvider {
                         tooltip: `${dep.packageName} ${latestVersion} is up to date`
                     });
                 } else {
-                    // Update available - show with bright arrow and version
+                    // Analyze update risk
+                    const analysis = analyzeVersionUpdate(currentVersion, latestVersion);
+                    
+                    let icon = '$(arrow-circle-up)';
+                    let riskText = '';
+                    
+                    if (analysis.riskLevel === 'high') {
+                        icon = '$(warning)';
+                        riskText = ' ⚠️ Major';
+                    } else if (analysis.riskLevel === 'medium') {
+                        icon = '$(info)';
+                        riskText = ' Minor';
+                    }
+                    
+                    // Update available - show with appropriate icon and risk level
                     codeLens = new vscode.CodeLens(range, {
-                        title: `$(arrow-circle-up) ${t('updateTo')} ${latestVersion}`,
+                        title: `${icon} ${t('updateTo')} ${latestVersion}${riskText}`,
                         command: 'pyDepsHint.updateVersion',
                         arguments: [document, dep.line, dep.packageName, latestVersion],
-                        tooltip: `Click to update ${dep.packageName} from ${currentVersion} to ${latestVersion}`
+                        tooltip: `Click to update ${dep.packageName} from ${currentVersion} to ${latestVersion}\nUpdate type: ${analysis.updateType}\nRisk level: ${analysis.riskLevel}`
                     });
                 }
                 
