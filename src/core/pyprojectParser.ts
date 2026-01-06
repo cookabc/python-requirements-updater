@@ -81,22 +81,23 @@ export function parsePyprojectDocument(content: string): ParsedDependency[] {
                 });
             }
 
-            // Handle optional-dependencies (can be array or object with extras)
-            if (parsed.project.optionalDependencies) {
-                if (Array.isArray(parsed.project.optionalDependencies)) {
-                    parsed.project.optionalDependencies.forEach((dep: string) => {
+            // Handle optional-dependencies (use bracket notation for kebab-case keys)
+            const optionalDeps = parsed.project['optional-dependencies'];
+            if (optionalDeps) {
+                if (Array.isArray(optionalDeps)) {
+                    optionalDeps.forEach((dep: string) => {
                         const parsedDep = findAndParseDependency(dep, lines);
                         if (parsedDep) {
                             dependencies.push(parsedDep);
                         }
                     });
-                } else if (typeof parsed.project.optionalDependencies === 'object') {
+                } else if (typeof optionalDeps === 'object') {
                     // optional-dependencies is a dict of extras
-                    const extras: Record<string, string[]> = parsed.project.optionalDependencies;
+                    const extras: Record<string, string[]> = optionalDeps;
                     Object.keys(extras).forEach(extraName => {
-                        const extraDeps = extras[extraName];
-                        if (Array.isArray(extraDeps)) {
-                            extraDeps.forEach((dep: string) => {
+                        const extraDepsList = extras[extraName];
+                        if (Array.isArray(extraDepsList)) {
+                            extraDepsList.forEach((dep: string) => {
                                 const parsedDep = findAndParseDependency(dep, lines);
                                 if (parsedDep) {
                                     dependencies.push(parsedDep);
