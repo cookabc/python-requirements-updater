@@ -81,13 +81,30 @@ export function parsePyprojectDocument(content: string): ParsedDependency[] {
                 });
             }
 
-            if (Array.isArray(parsed.project.optionalDependencies)) {
-                parsed.project.optionalDependencies.forEach((dep: string) => {
-                    const parsedDep = findAndParseDependency(dep, lines);
-                    if (parsedDep) {
-                        dependencies.push(parsedDep);
-                    }
-                });
+            // Handle optional-dependencies (can be array or object with extras)
+            if (parsed.project.optionalDependencies) {
+                if (Array.isArray(parsed.project.optionalDependencies)) {
+                    parsed.project.optionalDependencies.forEach((dep: string) => {
+                        const parsedDep = findAndParseDependency(dep, lines);
+                        if (parsedDep) {
+                            dependencies.push(parsedDep);
+                        }
+                    });
+                } else if (typeof parsed.project.optionalDependencies === 'object') {
+                    // optional-dependencies is a dict of extras
+                    const extras: Record<string, string[]> = parsed.project.optionalDependencies;
+                    Object.keys(extras).forEach(extraName => {
+                        const extraDeps = extras[extraName];
+                        if (Array.isArray(extraDeps)) {
+                            extraDeps.forEach((dep: string) => {
+                                const parsedDep = findAndParseDependency(dep, lines);
+                                if (parsedDep) {
+                                    dependencies.push(parsedDep);
+                                }
+                            });
+                        }
+                    });
+                }
             }
         }
         // PEP 518 format: tool.poetry.dependencies or similar
