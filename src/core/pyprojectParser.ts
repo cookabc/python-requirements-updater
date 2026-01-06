@@ -83,29 +83,29 @@ export function parsePyprojectDocument(content: string): ParsedDependency[] {
 
             // Handle optional-dependencies (use bracket notation for kebab-case keys)
             const optionalDeps = parsed.project['optional-dependencies'];
-            if (optionalDeps) {
-                if (Array.isArray(optionalDeps)) {
-                    optionalDeps.forEach((dep: string) => {
-                        const parsedDep = findAndParseDependency(dep, lines);
-                        if (parsedDep) {
-                            dependencies.push(parsedDep);
-                        }
-                    });
-                } else if (typeof optionalDeps === 'object') {
-                    // optional-dependencies is a dict of extras
-                    const extras: Record<string, string[]> = optionalDeps;
-                    Object.keys(extras).forEach(extraName => {
-                        const extraDepsList = extras[extraName];
-                        if (Array.isArray(extraDepsList)) {
-                            extraDepsList.forEach((dep: string) => {
-                                const parsedDep = findAndParseDependency(dep, lines);
-                                if (parsedDep) {
-                                    dependencies.push(parsedDep);
-                                }
-                            });
-                        }
-                    });
-                }
+            if (Array.isArray(optionalDeps)) {
+                optionalDeps.forEach((dep: string) => {
+                    const parsedDep = findAndParseDependency(dep, lines);
+                    if (parsedDep) {
+                        dependencies.push(parsedDep);
+                    }
+                });
+            }
+
+            if (typeof optionalDeps === 'object') {
+                // optional-dependencies is a dict of extras
+                const extras: Record<string, string[]> = optionalDeps;
+                Object.keys(extras).forEach(extraName => {
+                    const extraDepsList = extras[extraName];
+                    if (Array.isArray(extraDepsList)) {
+                        extraDepsList.forEach((dep: string) => {
+                            const parsedDep = findAndParseDependency(dep, lines);
+                            if (parsedDep) {
+                                dependencies.push(parsedDep);
+                            }
+                        });
+                    }
+                });
             }
         }
         // PEP 518 format: tool.poetry.dependencies or similar
