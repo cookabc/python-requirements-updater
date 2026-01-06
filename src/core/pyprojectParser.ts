@@ -1,6 +1,6 @@
 /**
  * Dependency Parser for pyproject.toml files
- * Parses dependencies from [project.dependencies] section
+ * Parses dependencies from [project.dependencies] and [project.optional-dependencies] sections
  */
 
 import * as toml from '@iarna/toml';
@@ -69,11 +69,26 @@ export function parsePyprojectDocument(content: string): ParsedDependency[] {
     try {
         const parsed = toml.parse(content) as any;
 
-        let depsArray: string[] = [];
+        const lines = content.split('\n');
 
-        // PEP 621 format: project.dependencies
-        if (parsed.project && Array.isArray(parsed.project.dependencies)) {
-            depsArray = parsed.project.dependencies;
+        if (parsed.project) {
+            if (Array.isArray(parsed.project.dependencies)) {
+                parsed.project.dependencies.forEach((dep: string) => {
+                    const parsedDep = findAndParseDependency(dep, lines);
+                    if (parsedDep) {
+                        dependencies.push(parsedDep);
+                    }
+                });
+            }
+
+            if (Array.isArray(parsed.project.optionalDependencies)) {
+                parsed.project.optionalDependencies.forEach((dep: string) => {
+                    const parsedDep = findAndParseDependency(dep, lines);
+                    if (parsedDep) {
+                        dependencies.push(parsedDep);
+                    }
+                });
+            }
         }
         // PEP 518 format: tool.poetry.dependencies or similar
         else if (parsed.tool && parsed.tool.poetry && Array.isArray(parsed.tool.poetry.dependencies)) {
@@ -83,35 +98,37 @@ export function parsePyprojectDocument(content: string): ParsedDependency[] {
         }
         // Legacy setuptools format
         else if (parsed.install_requires && Array.isArray(parsed.install_requires)) {
-            depsArray = parsed.install_requires;
-        }
-
-        const lines = content.split('\n');
-
-        depsArray.forEach((dep: string) => {
-            let lineNumber = -1;
-            let lineText = '';
-
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].includes(dep)) {
-                    lineNumber = i;
-                    lineText = lines[i];
-                    break;
-                }
-            }
-
-            if (lineNumber >= 0) {
-                const parsedDep = parseDependencyString(dep, lineNumber, lineText);
+            parsed.install_requires.forEach((dep: string) => {
+                const parsedDep = findAndParseDependency(dep, lines);
                 if (parsedDep) {
                     dependencies.push(parsedDep);
                 }
-            }
-        });
+            });
+        }
     } catch (error) {
         console.error('Error parsing TOML:', error);
     }
 
     return dependencies;
+}
+
+function findAndParseDependency(dep: string, lines: string[]): ParsedDependency | null {
+    let lineNumber = -1;
+    let lineText = '';
+
+    for (let i = 0; i < lines.length; i++) {
+        if (lines[i].includes(dep)) {
+            lineNumber = i;
+            lineText = lines[i];
+            break;
+        }
+    }
+
+    if (lineNumber >= 0) {
+        return parseDependencyString(dep, lineNumber, lineText);
+    }
+
+    return null;
 }
 
 /**
