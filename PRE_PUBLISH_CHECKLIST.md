@@ -16,7 +16,7 @@
 - [x] Code compiles without errors
 
 ### 3. GitHub Repository
-- [ ] Create GitHub repository: `python-requirements-updater`
+- [ ] Create GitHub repository: `python-dependencies-updater`
 - [ ] Push code to repository
 - [ ] Ensure repository is public
 - [ ] Repository URL matches package.json

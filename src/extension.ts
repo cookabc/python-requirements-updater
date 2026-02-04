@@ -35,7 +35,7 @@ function buildVersionReplacement(
 }
 
 export function activate(context: vscode.ExtensionContext): void {
-  console.log("Python Requirements Updater is now active");
+  console.log("Python Dependencies Updater is now active");
 
   // Initialize status bar
   const statusBar = new StatusBarManager();

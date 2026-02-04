@@ -1,9 +1,9 @@
-# Python Requirements Updater
+# Python Dependencies Updater
 
-Smart version management for Python requirements.txt files with one-click updates and breaking change detection.
+Smart version management for Python requirements.txt and pyproject.toml files with one-click updates and breaking change detection.
 
-[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/cookabc.python-requirements-updater)](https://marketplace.visualstudio.com/items?itemName=cookabc.python-requirements-updater)
-[![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/cookabc.python-requirements-updater)](https://marketplace.visualstudio.com/items?itemName=cookabc.python-requirements-updater)
+[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/cookabc.python-dependencies-updater)](https://marketplace.visualstudio.com/items?itemName=cookabc.python-dependencies-updater)
+[![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/cookabc.python-dependencies-updater)](https://marketplace.visualstudio.com/items?itemName=cookabc.python-dependencies-updater)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## ✨ Features
@@ -21,12 +21,12 @@ Smart version management for Python requirements.txt files with one-click update
 
 1. Open VS Code
 2. Go to Extensions (Ctrl+Shift+X)
-3. Search for "Python Requirements Updater"
+3. Search for "Python Dependencies Updater"
 4. Click Install
 
 Or install from command line:
 ```bash
-code --install-extension cookabc.python-requirements-updater
+code --install-extension cookabc.python-dependencies-updater
 ```
 
 ## 🚀 Usage

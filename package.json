@@ -1,8 +1,8 @@
 {
-  "name": "python-requirements-updater",
-  "displayName": "Python Requirements Updater",
+  "name": "python-dependencies-updater",
+  "displayName": "Python Dependencies Updater",
   "description": "Smart version management for Python requirements.txt and pyproject.toml files with one-click updates and breaking change detection",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "publisher": "cookabc",
   "license": "MIT",
   "icon": "icon.png",
@@ -126,7 +126,8 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile",
     "test": "mocha --require ts-node/register 'src/test/**/*.test.ts'",
-    "lint": "eslint src --ext ts"
+    "lint": "eslint src --ext ts",
+    "publish:ovsx": "./publish-ovsx.sh"
   },
   "devDependencies": {
     "@types/chai": "^4.3.11",
