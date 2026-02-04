@@ -29,13 +29,16 @@
 
 ## 🚀 Quick Publishing Steps
 
-### Method 1: Use Scripts (Recommended)
+### Method 1: Use Script (Recommended)
 ```bash
-# macOS/Linux
-./publish.sh
+# Publish to both marketplaces (Universe)
+./publish.sh all
 
-# Windows
-publish.bat
+# Publish to VS Code Marketplace only
+./publish.sh vsx
+
+# Publish to OpenVSX only
+./publish.sh ovsx
 ```
 
 ### Method 2: Manual Publishing
