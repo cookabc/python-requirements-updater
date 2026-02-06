@@ -126,64 +126,80 @@ export function activate(context: vscode.ExtensionContext): void {
         analysis: any;
       }> = [];
 
-      // First pass: identify safe and risky updates
-      for (const dep of deps) {
-        try {
-          const versionInfo = await getLatestCompatible(
-            dep.packageName,
-            "",
-            false,
-            60,
-          );
-          if (versionInfo.latestCompatible) {
-            const currentVersion = dep.versionSpecifier.replace(/^==/, "");
-            const newVersion = versionInfo.latestCompatible;
+      // First pass: identify safe and risky updates with progress
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: t("updateAll"),
+          cancellable: true,
+        },
+        async (progress, progressToken) => {
+          for (let idx = 0; idx < deps.length; idx++) {
+            if (progressToken.isCancellationRequested) {
+              break;
+            }
+            const dep = deps[idx];
+            progress.report({
+              message: `${dep.packageName} (${idx + 1}/${deps.length})`,
+              increment: (1 / deps.length) * 100,
+            });
+            try {
+              const versionInfo = await getLatestCompatible(
+                dep.packageName,
+                "",
+                false,
+                60,
+              );
+              if (versionInfo.latestCompatible) {
+                const currentVersion = dep.versionSpecifier.replace(/^==/, "");
+                const newVersion = versionInfo.latestCompatible;
 
-            if (currentVersion !== newVersion) {
-              const analysis = analyzeVersionUpdate(currentVersion, newVersion);
+                if (currentVersion !== newVersion) {
+                  const analysis = analyzeVersionUpdate(currentVersion, newVersion);
 
-              if (analysis.riskLevel === "high") {
-                // Risky update - collect for confirmation
-                riskyUpdates.push({
-                  dep,
-                  currentVersion,
-                  newVersion,
-                  analysis,
-                });
-              } else {
-                const lineText = document.lineAt(dep.line).text;
-                const isTOML = document.languageId === "toml";
-                const versionRegex = isTOML
-                  ? /([=<>!~\^]+)\s*[^"',]+/
-                  : /==([\d\w\.\-\+]+)/;
-                const match = lineText.match(versionRegex);
+                  if (analysis.riskLevel === "high") {
+                    riskyUpdates.push({
+                      dep,
+                      currentVersion,
+                      newVersion,
+                      analysis,
+                    });
+                  } else {
+                    const lineText = document.lineAt(dep.line).text;
+                    const isTOML = document.languageId === "toml";
+                    const versionRegex = isTOML
+                      ? /([=<>!~\^]+)\s*[^"',]+/
+                      : /==([\d\w\.\-\+]+)/;
+                    const match = lineText.match(versionRegex);
 
-                if (match) {
-                  const versionPart = match[0];
-                  const startIndex = match.index!;
-                  const endIndex = startIndex + versionPart.length;
+                    if (match) {
+                      const versionPart = match[0];
+                      const startIndex = match.index!;
+                      const endIndex = startIndex + versionPart.length;
 
-                  const replacement = buildVersionReplacement(
-                    versionPart,
-                    newVersion,
-                    isTOML,
-                  );
-                  const range = new vscode.Range(
-                    dep.line,
-                    startIndex,
-                    dep.line,
-                    endIndex,
-                  );
-                  edit.replace(document.uri, range, replacement);
-                  safeUpdates++;
+                      const replacement = buildVersionReplacement(
+                        versionPart,
+                        newVersion,
+                        isTOML,
+                      );
+                      const range = new vscode.Range(
+                        dep.line,
+                        startIndex,
+                        dep.line,
+                        endIndex,
+                      );
+                      edit.replace(document.uri, range, replacement);
+                      safeUpdates++;
+                    }
+                  }
                 }
               }
+            } catch {
+              // Skip failed packages
             }
           }
-        } catch {
-          // Skip failed packages
-        }
-      }
+        },
+      );
 
       // Handle risky updates with confirmation
       let confirmedRiskyUpdates = 0;

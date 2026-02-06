@@ -105,7 +105,10 @@
           "requirements.txt"
         ],
         "filenames": [
-          "requirements.txt"
+          "requirements.txt",
+          "requirements-dev.txt",
+          "requirements-test.txt",
+          "requirements-prod.txt"
         ],
         "configuration": "./language-configuration.json"
       },

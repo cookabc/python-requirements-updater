@@ -48,6 +48,20 @@ export function parsePyProjectDocument(content: string): PyProjectDependency[] {
       trimmed.includes("=") &&
       trimmed.includes("[")
     ) {
+      // Check for inline array (both [ and ] on same line)
+      if (trimmed.includes("]")) {
+        const inlineMatch = trimmed.match(/\[([^\]]*)\]/);
+        if (inlineMatch) {
+          const items = inlineMatch[1].split(",").map(s => s.trim()).filter(s => s);
+          for (const item of items) {
+            const dep = parseDependencyLine(item, "project.dependencies", i, undefined);
+            if (dep) {
+              dependencies.push(dep);
+            }
+          }
+        }
+        continue;
+      }
       inDependenciesArray = true;
       currentExtra = undefined;
       continue;
@@ -64,9 +78,21 @@ export function parsePyProjectDocument(content: string): PyProjectDependency[] {
       // In optional-dependencies section, any line ending with "=[" starts an array
       if (currentSection.includes("optional-dependencies")) {
         // Check if this looks like an optional group definition (e.g., "dev = [")
-        const match = trimmed.match(/^([a-zA-Z0-9._-]+)\s*=\s*\[.*$/);
+        const match = trimmed.match(/^([a-zA-Z0-9._-]+)\s*=\s*\[(.*)$/);
         if (match) {
           currentExtra = match[1];
+          // Check for inline array (both [ and ] on same line)
+          if (trimmed.includes("]")) {
+            const inlineContent = match[2].replace(/\].*$/, "");
+            const items = inlineContent.split(",").map(s => s.trim()).filter(s => s);
+            for (const item of items) {
+              const dep = parseDependencyLine(item, "project.optional-dependencies", i, currentExtra);
+              if (dep) {
+                dependencies.push(dep);
+              }
+            }
+            continue;
+          }
           inDependenciesArray = true;
           continue;
         }

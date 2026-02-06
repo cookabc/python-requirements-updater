@@ -55,7 +55,7 @@ export function detectFileType(
   }
 
   if (
-    fileName.endsWith("requirements.txt") ||
+    /requirements.*\.txt$/.test(fileName) ||
     fileName.endsWith(".requirements")
   ) {
     // For requirements.txt, we assume it's valid if it doesn't contain TOML syntax
@@ -150,7 +150,7 @@ export function getFileTypeFromName(fileName: string): FileType | null {
   }
 
   if (
-    fileName.endsWith("requirements.txt") ||
+    /requirements.*\.txt$/.test(fileName) ||
     fileName.endsWith(".requirements")
   ) {
     return FileType.Requirements;
