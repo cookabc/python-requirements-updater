@@ -115,7 +115,7 @@ export class PyDepsCodeLensProvider implements vscode.CodeLensProvider {
         // Success state
         const versionInfo = cached.versionInfo!;
         const versionWithoutOperator = dep.versionSpecifier.replace(/^[=<>!~\^]+/, "");
-        const currentVersion = versionWithoutOperator.replace(/["']/g, "");
+        const currentVersion = versionWithoutOperator.replace(/["']/g, "").trim();
         const latestVersion = versionInfo.latestCompatible!;
 
         if (currentVersion === latestVersion) {

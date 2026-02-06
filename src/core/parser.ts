@@ -7,8 +7,10 @@ import type { ParsedDependency } from '../types';
 
 // Package name: letters, numbers, dots, underscores, hyphens
 // Extras: optional [extra1,extra2] after package name
-// Version specifier: everything after the package name and extras
-const DEPENDENCY_REGEX = /^([a-zA-Z0-9._-]+)(?:\[[^\]]*\])?\s*(.*)$/;
+// Version specifier: everything after the package name and extras, but stops at:
+//   - # (inline comments)
+//   - ; (environment markers like python_version >= '3.12')
+const DEPENDENCY_REGEX = /^([a-zA-Z0-9._-]+)(?:\[[^\]]*\])?\s*([^#;]*)(?:[#;].*)?$/;
 
 /**
  * Check if a line should be skipped (empty, comment, special directive)

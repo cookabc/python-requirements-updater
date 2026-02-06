@@ -154,7 +154,7 @@ export function activate(context: vscode.ExtensionContext): void {
                 config.registryUrl,
               );
               if (versionInfo.latestCompatible) {
-                const currentVersion = dep.versionSpecifier.replace(/^==/, "");
+                const currentVersion = dep.versionSpecifier.replace(/^==/, "").trim();
                 const newVersion = versionInfo.latestCompatible;
 
                 if (currentVersion !== newVersion) {
@@ -386,7 +386,8 @@ async function updateStatusBar(
           document.languageId === "toml" ? /^[=<>!~\^]+\s*["']?/ : /^==/;
         const currentVersion = dep.versionSpecifier
           .replace(versionPattern, "")
-          .replace(/["']/g, "");
+          .replace(/["']/g, "")
+          .trim();
         if (currentVersion !== versionInfo.latestCompatible) {
           updatesAvailable++;
         }

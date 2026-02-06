@@ -71,6 +71,27 @@ describe('Requirements Parser', () => {
             assert.ok(result);
             assert.strictEqual(result.line, 5);
         });
+
+        it('should parse package with inline comment', () => {
+            const result = parse('fastapi==0.128.0  # this is a comment', 0);
+            assert.ok(result);
+            assert.strictEqual(result.packageName, 'fastapi');
+            assert.strictEqual(result.versionSpecifier.trim(), '==0.128.0');
+        });
+
+        it('should parse package with environment markers', () => {
+            const result = parse("holidays==0.89 ; python_version >= '3.12'", 0);
+            assert.ok(result);
+            assert.strictEqual(result.packageName, 'holidays');
+            assert.strictEqual(result.versionSpecifier.trim(), '==0.89');
+        });
+
+        it('should parse package with both extras and inline comment', () => {
+            const result = parse('uvicorn[standard]==0.20.0 # web server', 0);
+            assert.ok(result);
+            assert.strictEqual(result.packageName, 'uvicorn');
+            assert.strictEqual(result.versionSpecifier.trim(), '==0.20.0');
+        });
     });
 
     describe('parseDocument', () => {
