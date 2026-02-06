@@ -46,8 +46,8 @@ function shouldSkipLine(line: string): boolean {
         return true;
     }
     
-    // URL-based dependency
-    if (/^(https?|git|svn|hg|bzr):\/\//.test(trimmed)) {
+    // URL-based dependency (including git+https://, svn+ssh://, etc.)
+    if (/^(https?|git(\+https?)?|svn(\+ssh)?|hg|bzr):\/\//.test(trimmed)) {
         return true;
     }
     

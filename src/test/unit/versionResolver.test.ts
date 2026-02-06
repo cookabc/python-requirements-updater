@@ -1,6 +1,6 @@
 
 import * as assert from 'assert';
-import { parseVersion, compareVersions, satisfies, resolve } from '../../core/versionResolver';
+import { parseVersion, compareVersions, satisfies, resolve, parseSpecifier } from '../../core/versionResolver';
 
 describe('Version Resolver', () => {
     describe('parseVersion', () => {
@@ -79,6 +79,43 @@ describe('Version Resolver', () => {
             const res = resolve(betaVersions, '>=1.0.0', true);
             assert.strictEqual(res.found, true);
             assert.strictEqual(res.version, '1.2.0-beta');
+        });
+    });
+
+    describe('~= compatible release operator (PEP 440)', () => {
+        it('~=X.Y.Z should allow same major.minor', () => {
+            // ~=1.4.2 means >=1.4.2, ==1.4.*
+            assert.strictEqual(satisfies('1.4.5', [{ operator: '~=', version: '1.4.2' }]), true);
+            assert.strictEqual(satisfies('1.4.2', [{ operator: '~=', version: '1.4.2' }]), true);
+        });
+
+        it('~=X.Y.Z should reject different minor', () => {
+            assert.strictEqual(satisfies('1.5.0', [{ operator: '~=', version: '1.4.2' }]), false);
+        });
+
+        it('~=X.Y.Z should reject lower version', () => {
+            assert.strictEqual(satisfies('1.4.1', [{ operator: '~=', version: '1.4.2' }]), false);
+        });
+
+        it('~=X.Y should allow same major', () => {
+            // ~=2.1 means >=2.1, ==2.*
+            assert.strictEqual(satisfies('2.1.0', [{ operator: '~=', version: '2.1' }]), true);
+            assert.strictEqual(satisfies('2.5.0', [{ operator: '~=', version: '2.1' }]), true);
+        });
+
+        it('~=X.Y should reject different major', () => {
+            assert.strictEqual(satisfies('3.0.0', [{ operator: '~=', version: '2.1' }]), false);
+        });
+
+        it('~=X.Y should reject lower version', () => {
+            assert.strictEqual(satisfies('2.0.0', [{ operator: '~=', version: '2.1' }]), false);
+        });
+
+        it('should resolve with ~= constraint', () => {
+            const versions = ['1.3.0', '1.4.0', '1.4.5', '1.5.0', '2.0.0'];
+            const result = resolve(versions, '~=1.4.0');
+            assert.strictEqual(result.found, true);
+            assert.strictEqual(result.version, '1.4.5');
         });
     });
 });
