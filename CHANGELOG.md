@@ -2,6 +2,19 @@
 
 All notable changes to the "Python Dependencies Updater" extension will be documented in this file.
 
+## [1.4.0] - 2026-02-14
+
+### Added
+- Replaced custom TOML parser with `@iarna/toml` for more robust `pyproject.toml` parsing.
+- Improved handling of inline tables and arrays in TOML files.
+
+### Fixed
+- Fixed build scripts and `lint-staged` configuration.
+
+## [1.3.0] - 2026-02-14
+
+- Maintenance release.
+
 ## [1.2.0] - 2026-02-06
 
 ### Added
