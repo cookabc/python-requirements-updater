@@ -141,69 +141,88 @@ export function activate(context: vscode.ExtensionContext): void {
           cancellable: true,
         },
         async (progress, progressToken) => {
-          for (let idx = 0; idx < deps.length; idx++) {
+          let completed = 0;
+          const results = await Promise.all(
+            deps.map(async (dep) => {
+              if (progressToken.isCancellationRequested) {
+                return null;
+              }
+              try {
+                const versionInfo = await getLatestCompatible(
+                  dep.packageName,
+                  "",
+                  config.showPrerelease,
+                  config.cacheTTLMinutes,
+                  config.registryUrl,
+                );
+                completed++;
+                progress.report({
+                  message: `${dep.packageName} (${completed}/${deps.length})`,
+                  increment: (1 / deps.length) * 100,
+                });
+                return { dep, versionInfo };
+              } catch {
+                completed++;
+                progress.report({
+                  increment: (1 / deps.length) * 100,
+                });
+                return null;
+              }
+            }),
+          );
+
+          for (const result of results) {
             if (progressToken.isCancellationRequested) {
               break;
             }
-            const dep = deps[idx];
-            progress.report({
-              message: `${dep.packageName} (${idx + 1}/${deps.length})`,
-              increment: (1 / deps.length) * 100,
-            });
-            try {
-              const versionInfo = await getLatestCompatible(
-                dep.packageName,
-                "",
-                config.showPrerelease,
-                config.cacheTTLMinutes,
-                config.registryUrl,
-              );
-              if (versionInfo.latestCompatible) {
-                const currentVersion = dep.versionSpecifier.replace(/^==/, "").trim();
-                const newVersion = versionInfo.latestCompatible;
+            if (!result || !result.versionInfo.latestCompatible) {
+              continue;
+            }
 
-                if (currentVersion !== newVersion) {
-                  const analysis = analyzeVersionUpdate(currentVersion, newVersion);
+            const { dep, versionInfo } = result;
+            const currentVersion = dep.versionSpecifier
+              .replace(/^==/, "")
+              .trim();
+            const newVersion = versionInfo.latestCompatible;
 
-                  if (analysis.riskLevel === "high") {
-                    riskyUpdates.push({
-                      dep,
-                      currentVersion,
-                      newVersion,
-                      analysis,
-                    });
-                  } else {
-                    const lineText = document.lineAt(dep.line).text;
-                    const isTOML = document.languageId === "toml";
-                    const versionRegex = isTOML
-                      ? /([=<>!~\^]+)\s*[^"',]+/
-                      : /==([\d\w\.\-\+]+)/;
-                    const match = lineText.match(versionRegex);
+            if (currentVersion !== newVersion) {
+              const analysis = analyzeVersionUpdate(currentVersion, newVersion);
 
-                    if (match) {
-                      const versionPart = match[0];
-                      const startIndex = match.index!;
-                      const endIndex = startIndex + versionPart.length;
+              if (analysis.riskLevel === "high") {
+                riskyUpdates.push({
+                  dep,
+                  currentVersion,
+                  newVersion,
+                  analysis,
+                });
+              } else {
+                const lineText = document.lineAt(dep.line).text;
+                const isTOML = document.languageId === "toml";
+                const versionRegex = isTOML
+                  ? /([=<>!~\^]+)\s*[^"',]+/
+                  : /==([\d\w\.\-\+]+)/;
+                const match = lineText.match(versionRegex);
 
-                      const replacement = buildVersionReplacement(
-                        versionPart,
-                        newVersion,
-                        isTOML,
-                      );
-                      const range = new vscode.Range(
-                        dep.line,
-                        startIndex,
-                        dep.line,
-                        endIndex,
-                      );
-                      edit.replace(document.uri, range, replacement);
-                      safeUpdates++;
-                    }
-                  }
+                if (match) {
+                  const versionPart = match[0];
+                  const startIndex = match.index!;
+                  const endIndex = startIndex + versionPart.length;
+
+                  const replacement = buildVersionReplacement(
+                    versionPart,
+                    newVersion,
+                    isTOML,
+                  );
+                  const range = new vscode.Range(
+                    dep.line,
+                    startIndex,
+                    dep.line,
+                    endIndex,
+                  );
+                  edit.replace(document.uri, range, replacement);
+                  safeUpdates++;
                 }
               }
-            } catch {
-              // Skip failed packages
             }
           }
         },
@@ -377,28 +396,35 @@ async function updateStatusBar(
   const deps = parseDependencies(document.fileName, document.getText());
   let updatesAvailable = 0;
 
-  for (const dep of deps) {
-    try {
-      const versionInfo = await getLatestCompatible(
-        dep.packageName,
-        "",
-        config.showPrerelease,
-        config.cacheTTLMinutes,
-        config.registryUrl,
-      );
-      if (versionInfo.latestCompatible) {
-        const versionPattern =
-          document.languageId === "toml" ? /^[=<>!~\^]+\s*["']?/ : /^==/;
-        const currentVersion = dep.versionSpecifier
-          .replace(versionPattern, "")
-          .replace(/["']/g, "")
-          .trim();
-        if (currentVersion !== versionInfo.latestCompatible) {
-          updatesAvailable++;
-        }
+  const results = await Promise.all(
+    deps.map(async (dep) => {
+      try {
+        const versionInfo = await getLatestCompatible(
+          dep.packageName,
+          "",
+          config.showPrerelease,
+          config.cacheTTLMinutes,
+          config.registryUrl,
+        );
+        return { dep, versionInfo };
+      } catch {
+        return null;
       }
-    } catch {
-      // Skip failed packages
+    }),
+  );
+
+  for (const result of results) {
+    if (result && result.versionInfo.latestCompatible) {
+      const { dep, versionInfo } = result;
+      const versionPattern =
+        document.languageId === "toml" ? /^[=<>!~\^]+\s*["']?/ : /^==/;
+      const currentVersion = dep.versionSpecifier
+        .replace(versionPattern, "")
+        .replace(/["']/g, "")
+        .trim();
+      if (currentVersion !== versionInfo.latestCompatible) {
+        updatesAvailable++;
+      }
     }
   }
 
